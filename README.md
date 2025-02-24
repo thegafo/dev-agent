@@ -1,0 +1,1 @@
+dev agent messes with your files so you don’t have to. spits out a project tree for context, edits files, and tracks api costs. needs `OPENROUTER_API_KEY` or it’s useless. install with `npm i -g dev-agent`, run with `da <model>`. wanna contribute? cool, open a pr.
