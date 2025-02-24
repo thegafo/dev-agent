@@ -11,8 +11,14 @@ import { getSystemPrompt } from './prompt';
 
 const DEFAULT_MODEL = 'openai/gpt-4o-mini';
 
+const apiKey = process.env.OPENROUTER_API_KEY;
+if (!apiKey) {
+  console.error(chalk.red('Error: OPENROUTER_API_KEY is not set.')); 
+  process.exit(1);
+}
+
 const client = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
+  apiKey,
   baseURL: 'https://openrouter.ai/api/v1',
 });
 
