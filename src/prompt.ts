@@ -1,8 +1,14 @@
 import { generateDirectoryTree } from "./tree";
 
-const getSystemPrompt = () => {
+const getSystemPrompt = (ignoreList?: string[]) => {
   const tree = generateDirectoryTree(".", {
-    extraIgnores: ["dist", "*.log", "node_modules", ".git"],
+    extraIgnores: [
+      ...(ignoreList || []),
+      "dist",
+      "*.log",
+      "node_modules",
+      ".git",
+    ],
   });
   return `
 You are a software engineer tasked with completing user requests. 
