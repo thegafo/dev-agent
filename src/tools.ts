@@ -1,5 +1,5 @@
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
+import { exec } from "child_process";
+import { promises as fs } from "fs";
 
 type ExecuteCommandParams = { command: string };
 type WriteFileParams = { path: string; contents: string };
@@ -7,49 +7,49 @@ type ReadFilesParams = { paths: string[] };
 
 export const tools = [
   {
-    type: 'function',
+    type: "function",
     function: {
-      name: 'executeCommand',
-      description: 'Execute a shell command',
+      name: "executeCommand",
+      description: "Execute a shell command",
       function: executeCommand,
       parse: JSON.parse,
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
-          command: { type: 'string' },
+          command: { type: "string" },
         },
       },
     },
   },
   {
-    type: 'function',
+    type: "function",
     function: {
-      name: 'writeFile',
-      description: 'Write a file to disk',
+      name: "writeFile",
+      description: "Write a file to disk",
       function: writeFile,
       parse: JSON.parse,
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
-          path: { type: 'string' },
-          contents: { type: 'string' },
+          path: { type: "string" },
+          contents: { type: "string" },
         },
       },
     },
   },
   {
-    type: 'function',
+    type: "function",
     function: {
-      name: 'readFiles',
-      description: 'Read files from disk',
+      name: "readFiles",
+      description: "Read files from disk",
       function: readFiles,
       parse: JSON.parse,
       parameters: {
-        type: 'object',
+        type: "object",
         properties: {
           paths: {
-            type: 'array',
-            items: { type: 'string' },
+            type: "array",
+            items: { type: "string" },
           },
         },
       },
@@ -72,7 +72,7 @@ async function executeCommand({
 
 async function writeFile({ path, contents }: WriteFileParams): Promise<string> {
   try {
-    await fs.writeFile(path, contents, 'utf8');
+    await fs.writeFile(path, contents, "utf8");
     return `File written to ${path}`;
   } catch (error) {
     return `Error writing file: ${(error as any)?.message}`;
@@ -85,7 +85,7 @@ async function readFiles({
   try {
     const results: Record<string, string> = {};
     for (const path of paths) {
-      results[path] = await fs.readFile(path, 'utf8');
+      results[path] = await fs.readFile(path, "utf8");
     }
     return results;
   } catch (error) {

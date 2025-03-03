@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import ignore from 'ignore';
+import * as fs from "fs";
+import * as path from "path";
+import ignore from "ignore";
 
 interface GenerateDirectoryTreeOptions {
   /**
@@ -22,7 +22,7 @@ interface GenerateDirectoryTreeOptions {
  */
 export function generateDirectoryTree(
   dirPath: string,
-  options: GenerateDirectoryTreeOptions = {},
+  options: GenerateDirectoryTreeOptions = {}
 ): string {
   const { extraIgnores = [] } = options;
 
@@ -30,15 +30,15 @@ export function generateDirectoryTree(
   const rootDir = path.resolve(dirPath);
 
   // Get the name of the root directory (will be the top line in the tree output).
-  const rootName = '.'; // path.basename(rootDir);
+  const rootName = "."; // path.basename(rootDir);
 
   // Create an ignore instance to filter files/folders
   const ig = ignore();
 
   // 1. Load .gitignore rules if present
-  const gitignorePath = path.join(rootDir, '.gitignore');
+  const gitignorePath = path.join(rootDir, ".gitignore");
   if (fs.existsSync(gitignorePath)) {
-    const ignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+    const ignoreContent = fs.readFileSync(gitignorePath, "utf8");
     ig.add(ignoreContent);
   }
 
@@ -56,9 +56,9 @@ export function generateDirectoryTree(
   function buildTree(
     currentPath: string,
     indent: string,
-    relativeToRoot: string,
+    relativeToRoot: string
   ): string {
-    let result = '';
+    let result = "";
 
     let entries: fs.Dirent[] = [];
     try {
@@ -84,7 +84,7 @@ export function generateDirectoryTree(
 
       // Determine whether this is the last item in the current directory
       const isLast = index === entries.length - 1;
-      const connector = isLast ? '└── ' : '├── ';
+      const connector = isLast ? "└── " : "├── ";
 
       // Add the entry to the tree
       result += `${indent}${connector}${entryName}\n`;
@@ -92,7 +92,7 @@ export function generateDirectoryTree(
       // If directory, recurse
       if (entry.isDirectory()) {
         // Update indentation for sub-level
-        const newIndent = indent + (isLast ? '    ' : '│   ');
+        const newIndent = indent + (isLast ? "    " : "│   ");
         result += buildTree(entryPath, newIndent, entryRelativePath);
       }
     });
@@ -102,14 +102,14 @@ export function generateDirectoryTree(
 
   // Build our tree output starting from the top directory
   let treeOutput = `${rootName}\n`;
-  treeOutput += buildTree(rootDir, '', '');
+  treeOutput += buildTree(rootDir, "", "");
 
   return treeOutput;
 }
 
 if (require.main === module) {
-  const tree = generateDirectoryTree('.', {
-    extraIgnores: ['dist', '*.log', 'node_modules', '.git'],
+  const tree = generateDirectoryTree(".", {
+    extraIgnores: ["dist", "*.log", "node_modules", ".git"],
   });
 
   console.log(tree);

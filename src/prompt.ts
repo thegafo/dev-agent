@@ -1,8 +1,8 @@
-import { generateDirectoryTree } from './tree';
+import { generateDirectoryTree } from "./tree";
 
 const getSystemPrompt = () => {
-  const tree = generateDirectoryTree('.', {
-    extraIgnores: ['dist', '*.log', 'node_modules', '.git'],
+  const tree = generateDirectoryTree(".", {
+    extraIgnores: ["dist", "*.log", "node_modules", ".git"],
   });
   return `
 You are a software engineer tasked with completing user requests. 
