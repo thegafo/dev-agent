@@ -1,4 +1,4 @@
-import * as readline from 'readline';
+import * as readline from "readline";
 
 let rl: readline.ReadLine | null = null;
 
@@ -12,8 +12,8 @@ export const ask = (question: string): Promise<string> => {
       });
     }
 
-    if (!question.endsWith(' ')) {
-      question += ' ';
+    if (!question.endsWith(" ")) {
+      question += " ";
     }
 
     rl?.question(question, (answer: string) => {
