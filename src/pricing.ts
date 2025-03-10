@@ -15,6 +15,10 @@ export const pricing: { [key: string]: { input: number; output: number } } = {
     input: 3,
     output: 15,
   },
+  "anthropic/claude-3.7-sonnet": {
+    input: 3,
+    output: 15,
+  },
   "anthropic/claude-3-opus": {
     input: 15,
     output: 75,
