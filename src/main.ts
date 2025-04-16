@@ -50,6 +50,7 @@ export async function main(options: Options = {}) {
     };
 
     spinner.start();
+    let isLoading = true;
 
     const runner = client.beta.chat.completions
       .runTools({
@@ -59,22 +60,34 @@ export async function main(options: Options = {}) {
         stream: true,
       })
       .on("tool_calls.function.arguments.delta", () => {
-        spinner.start();
+        if (!isLoading) {
+          spinner.start();
+          isLoading = true;
+        }
       })
       .on("tool_calls.function.arguments.done", (data) => {
-        spinner.stop();
-        const args = JSON.parse(data.arguments);
-        if (data.name == "readFiles") {
-          console.log(chalk.green(`Reading files ${args.paths.join(", ")}`));
-        } else if ((data.name = "writeFile")) {
-          console.log(chalk.green(`Writing file ${args.path}`));
-        } else if (data.name == "executeCommand") {
-          console.log(chalk.green(`Executing command ${args.command}`));
+        if (isLoading) {
+          spinner.stop();
+          isLoading = false;
+          const args = JSON.parse(data.arguments);
+          if (data.name === "readFiles") {
+            console.log(chalk.green(`Reading files ${args.paths.join(", ")}`));
+          } else if (data.name === "writeFile") {
+            console.log(chalk.green(`Writing file ${args.path}`));
+          } else if (data.name === "executeCommand") {
+            console.log(chalk.green(`Executing command ${args.command}`));
+          }
         }
       })
       .on("content", (diff) => {
-        spinner.stop();
+        if (isLoading) {
+          spinner.stop();
+          isLoading = false;
+        }
         process.stdout.write(chalk.blue(diff));
+      })
+      .on("content.done", () => {
+        console.log();
       });
 
     await runner.finalChatCompletion();

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import "./guard";
+
 import { program } from "commander";
 import { version } from "../package.json";
 import { main } from "./main";

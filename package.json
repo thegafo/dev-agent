@@ -1,12 +1,15 @@
 {
   "name": "dev-agent",
-  "version": "0.0.8",
   "main": "index.js",
+  "version": "0.0.10",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "bin": {
     "da": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/prompt.txt dist/",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts"
   },
@@ -15,7 +18,7 @@
   ],
   "author": "thegafo",
   "license": "ISC",
-  "description": "",
+  "description": "minimal software development agent",
   "repository": {
     "type": "git",
     "url": "https://github.com/thegafo/dev-agent.git"
