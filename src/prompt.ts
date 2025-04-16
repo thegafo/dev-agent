@@ -1,6 +1,14 @@
 import { generateDirectoryTree } from "./tree";
+import fs from "fs";
+import path from "path";
 
-const getSystemPrompt = (ignoreList?: string[]) => {
+const defaultPromptPath = path.resolve(__dirname, "prompt.txt");
+
+const getSystemPrompt = (
+  ignoreList?: string[],
+  promptPath: string = defaultPromptPath
+) => {
+  const template = fs.readFileSync(promptPath, "utf-8");
   const tree = generateDirectoryTree(".", {
     extraIgnores: [
       ...(ignoreList || []),
@@ -10,20 +18,7 @@ const getSystemPrompt = (ignoreList?: string[]) => {
       ".git",
     ],
   });
-  return `
-You are a software engineer tasked with completing user requests. 
-  
-Workflow:
-  
-1. Given the tree structure of a directory, first read the contents of any files relevant to the request.
-2. Read the contents of additional files as needed (optional). 
-3. Rewrite the contents of any files needed to complete the user's request.
-4. Provide a short summary without revealing the contents of the files.
-  
-Directory tree:
-
-${tree}
-  `.trim();
+  return template.replace(/{{\s*tree\s*}}/, tree);
 };
 
 export { getSystemPrompt };

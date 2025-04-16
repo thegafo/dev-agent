@@ -1,41 +1,42 @@
 #!/usr/bin/env node
 
-import OpenAI from "openai";
 import { tools } from "./tools";
 import { ask } from "./ask";
-import { getCost } from "./pricing";
 import { version } from "../package.json";
 import chalk from "chalk";
-import { loading } from "cli-loading-animation";
 import { getSystemPrompt } from "./prompt";
+import { client, getPricing } from "./openrouter";
+import yoctoSpinner from "yocto-spinner";
 
-const DEFAULT_MODEL = "openai/gpt-4o-mini";
+const DEFAULT_MODEL = "openai/gpt-4.1-nano";
 
 interface Options {
   model?: string;
   ignore?: string[];
+  promptPath?: string;
 }
-
-const apiKey = process.env.OPENROUTER_API_KEY;
-if (!apiKey) {
-  console.error(chalk.red("Error: OPENROUTER_API_KEY is not set."));
-  process.exit(1);
-}
-
-const client = new OpenAI({
-  apiKey,
-  baseURL: "https://openrouter.ai/api/v1",
-});
 
 // Loading animation
-const { start: startLoading, stop: stopLoading } = loading("");
+const spinner = yoctoSpinner();
 
 export async function main(options: Options = {}) {
-  const systemPrompt = getSystemPrompt(options.ignore);
+  const systemPrompt = getSystemPrompt(options.ignore, options.promptPath);
   let messages = [{ role: "system", content: systemPrompt }];
   const model = options.model || DEFAULT_MODEL;
 
+  let pricing = { prompt: 0, completion: 0 };
+  try {
+    pricing = await getPricing(model);
+  } catch (err) {
+    console.log(chalk.red(`Model ${model} not available...`));
+    process.exit();
+  }
+
+  const input = (pricing.prompt * 1e6).toFixed(2);
+  const output = (pricing.completion * 1e6).toFixed(2);
+
   console.log(chalk.red(`dev-agent v${version} - ${model}`));
+  console.log(chalk.yellow(`input: $${input}/M, output: $${output}/M`));
   console.log(chalk.blue(systemPrompt));
 
   let cost = 0;
@@ -43,10 +44,12 @@ export async function main(options: Options = {}) {
   while (true) {
     const query = await ask(">>> ");
     messages = [...messages, { role: "user", content: query }];
-    messages[0] = { role: "system", content: getSystemPrompt() };
+    messages[0] = {
+      role: "system",
+      content: getSystemPrompt(options.ignore, options.promptPath),
+    };
 
-    startLoading();
-    let isLoading = true;
+    spinner.start();
 
     const runner = client.beta.chat.completions
       .runTools({
@@ -56,28 +59,21 @@ export async function main(options: Options = {}) {
         stream: true,
       })
       .on("tool_calls.function.arguments.delta", () => {
-        if (!isLoading) {
-          startLoading();
-          isLoading = true;
-        }
+        spinner.start();
       })
       .on("tool_calls.function.arguments.done", (data) => {
-        if (isLoading) {
-          console.log();
-          stopLoading();
-          isLoading = false;
-          console.log(
-            chalk.green(
-              `${data.name} ${JSON.stringify(JSON.parse(data.arguments))}`
-            )
-          );
+        spinner.stop();
+        const args = JSON.parse(data.arguments);
+        if (data.name == "readFiles") {
+          console.log(chalk.green(`Reading files ${args.paths.join(", ")}`));
+        } else if ((data.name = "writeFile")) {
+          console.log(chalk.green(`Writing file ${args.path}`));
+        } else if (data.name == "executeCommand") {
+          console.log(chalk.green(`Executing command ${args.command}`));
         }
       })
       .on("content", (diff) => {
-        if (isLoading) {
-          stopLoading();
-          isLoading = false;
-        }
+        spinner.stop();
         process.stdout.write(chalk.blue(diff));
       });
 
@@ -85,14 +81,12 @@ export async function main(options: Options = {}) {
     const allCompletions = runner.allChatCompletions();
     messages = runner.messages as any;
 
-    stopLoading();
+    spinner.stop();
 
     for (const completion of allCompletions) {
-      cost += getCost(
-        model,
-        completion.usage?.prompt_tokens || 0,
-        completion.usage?.completion_tokens || 0
-      );
+      cost +=
+        pricing.prompt * (completion.usage?.prompt_tokens || 0) +
+        pricing.completion * (completion.usage?.completion_tokens || 0);
     }
 
     console.log();
