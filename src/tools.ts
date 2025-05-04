@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { promises as fs } from "fs";
 
 type ExecuteCommandParams = { command: string };
-type WriteFileParams = { path: string; contents: string };
+type WriteFileParams = { path: string; content: string };
 type ReadFilesParams = { paths: string[] };
 
 export const tools = [
@@ -32,7 +32,7 @@ export const tools = [
         type: "object",
         properties: {
           path: { type: "string" },
-          contents: { type: "string" },
+          content: { type: "string" },
         },
       },
     },
@@ -65,14 +65,14 @@ async function executeCommand({
       if (error) {
         return reject(stderr);
       }
-      resolve(stdout);
+      resolve(stdout || "No shell output");
     });
   });
 }
 
-async function writeFile({ path, contents }: WriteFileParams): Promise<string> {
+async function writeFile({ path, content }: WriteFileParams): Promise<string> {
   try {
-    await fs.writeFile(path, contents, "utf8");
+    await fs.writeFile(path, content, "utf8");
     return `File written to ${path}`;
   } catch (error) {
     return `Error writing file: ${(error as any)?.message}`;

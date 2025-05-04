@@ -24,12 +24,15 @@
     "url": "https://github.com/thegafo/dev-agent.git"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^22.13.4",
     "typescript": "^5.7.3"
   },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^13.1.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "ignore": "^7.0.3",
     "openai": "^4.85.3",
     "yocto-spinner": "^0.2.1"
