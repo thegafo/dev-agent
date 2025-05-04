@@ -5,7 +5,7 @@ import "./guard";
 import { program } from "commander";
 import { version } from "../package.json";
 import { main } from "./main";
-import { printModels } from "./openrouter";
+import { printModels, getAuthKeyInfo } from "./openrouter";
 
 program
   .version(version)
@@ -20,6 +20,7 @@ program
     "-l, --list <query>",
     "List models, optionally filtering by search query"
   )
+  .option("-b, --balance", "Show balance remaining on API key")
   .parse(process.argv);
 
 const options = program.opts();
@@ -29,6 +30,16 @@ if (options.list !== undefined) {
     .then(() => process.exit(0))
     .catch((error) => {
       console.error("Error loading models:", error);
+      process.exit(1);
+    });
+} else if (options.balance) {
+  getAuthKeyInfo()
+    .then(({ limit_remaining }) => {
+      console.log(`$${limit_remaining.toFixed(4)}`);
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error("Error loading API key info:", error);
       process.exit(1);
     });
 } else {

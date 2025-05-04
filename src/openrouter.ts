@@ -59,3 +59,18 @@ export async function printModels(query: string) {
     )
   );
 }
+
+// Get OpenRouter API key usage, balance, and other info
+export async function getAuthKeyInfo(): Promise<any> {
+  const response = await fetch("https://openrouter.ai/api/v1/auth/key", {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: "application/json",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch auth key info: HTTP ${response.status}`);
+  }
+  const { data } = await response.json();
+  return data;
+}
