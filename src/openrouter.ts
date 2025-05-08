@@ -13,14 +13,29 @@ export const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
 });
 
-// List models from OpenRouter API
-export async function listModels(): Promise<any[]> {
+// List models from OpenRouter API with optional filtering by query
+export async function listModels(query: string = ""): Promise<any[]> {
   const response = await fetch("https://openrouter.ai/api/v1/models");
   if (!response.ok) {
     throw new Error(`HTTP error: ${response.status}`);
   }
   const { data } = await response.json();
-  return data.filter((d: any) => d.supported_parameters.indexOf("tools") > -1);
+  let models = data.filter(
+    (d: any) => d.supported_parameters.indexOf("tools") > -1
+  );
+  if (query && query.trim() !== "") {
+    models = models.filter((m: any) =>
+      m.id.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  // Sort models by prompt pricing
+  models.sort(
+    (a: any, b: any) =>
+      parseFloat(a.pricing.prompt) - parseFloat(b.pricing.prompt)
+  );
+
+  return models;
 }
 
 // Get pricing for model. Returns pricing per token
@@ -35,29 +50,6 @@ export async function getPricing(
 
   const { prompt, completion } = model.pricing;
   return { prompt: parseFloat(prompt), completion: parseFloat(completion) };
-}
-
-export async function printModels(query: string) {
-  const models = await listModels();
-  const filteredModels = models.filter((m) =>
-    m.id.toLowerCase().includes(query.toLowerCase())
-  );
-  if (filteredModels.length === 0) {
-    console.log(chalk.yellow("No models found matching query:"), query);
-    return;
-  }
-  console.log(
-    chalk.green(
-      filteredModels
-        .map((m) => {
-          const { prompt, completion } = m.pricing;
-          const input = Math.max(0, parseFloat(prompt) * 1e6).toFixed(2);
-          const output = Math.max(0, parseFloat(completion) * 1e6).toFixed(2);
-          return `${chalk.blue(m.id)} $${input}/${output}`;
-        })
-        .join("\n")
-    )
-  );
 }
 
 // Get OpenRouter API key usage, balance, and other info

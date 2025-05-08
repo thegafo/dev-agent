@@ -11,10 +11,9 @@ run with `da -m <model>`
 ```
 Options:
   -V, --version               output the version number
-  -m, --model <model>         Specify the model to use
+  -m, --model <model>         Specify the model to use or search for available models
   -i, --ignore <ignore list>  List of directories or files to ignore
   -p, --prompt <prompt path>  Path to custom prompt file
-  -l, --list <query>          List models, optionally filtering by search query
   -b, --balance               Show balance remaining on API key
   -h, --help                  display help for command
 ```

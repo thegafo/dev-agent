@@ -1,7 +1,7 @@
 {
   "name": "dev-agent",
   "main": "index.js",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "engines": {
     "node": ">=22.0.0"
   },
@@ -24,6 +24,7 @@
     "url": "https://github.com/thegafo/dev-agent.git"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.7",
     "@types/node": "^22.13.4",
     "typescript": "^5.7.3"
   },
@@ -31,6 +32,7 @@
     "chalk": "^4.1.2",
     "commander": "^13.1.0",
     "ignore": "^7.0.3",
+    "inquirer": "^9.2.23",
     "openai": "^4.97.0",
     "yocto-spinner": "^0.2.1"
   },
