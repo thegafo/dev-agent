@@ -20,7 +20,7 @@ export async function listModels(): Promise<any[]> {
     throw new Error(`HTTP error: ${response.status}`);
   }
   const { data } = await response.json();
-  return data;
+  return data.filter((d: any) => d.supported_parameters.indexOf("tools") > -1);
 }
 
 // Get pricing for model. Returns pricing per token

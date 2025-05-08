@@ -1,5 +1,6 @@
 import { exec } from "child_process";
 import { promises as fs } from "fs";
+import * as pathModule from "path";
 import chalk from "chalk";
 
 type ExecuteCommandParams = { command: string };
@@ -62,10 +63,10 @@ async function executeCommand({
   command,
 }: ExecuteCommandParams): Promise<string> {
   console.log(chalk.green(`Executing command ${command}`));
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        return reject(stderr);
+        return resolve(stderr);
       }
       resolve(stdout);
     });
@@ -74,6 +75,8 @@ async function executeCommand({
 
 async function writeFile({ path, contents }: WriteFileParams): Promise<string> {
   try {
+    const dir = pathModule.dirname(path);
+    await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path, contents, "utf8");
     console.log(chalk.green(`Writing file ${path}`));
     return `File written to ${path}`;
