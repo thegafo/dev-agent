@@ -1,5 +1,6 @@
 import { exec } from "child_process";
 import { promises as fs } from "fs";
+import chalk from "chalk";
 
 type ExecuteCommandParams = { command: string };
 type WriteFileParams = { path: string; contents: string };
@@ -60,6 +61,7 @@ export const tools = [
 async function executeCommand({
   command,
 }: ExecuteCommandParams): Promise<string> {
+  console.log(chalk.green(`Executing command ${command}`));
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -73,6 +75,7 @@ async function executeCommand({
 async function writeFile({ path, contents }: WriteFileParams): Promise<string> {
   try {
     await fs.writeFile(path, contents, "utf8");
+    console.log(chalk.green(`Writing file ${path}`));
     return `File written to ${path}`;
   } catch (error) {
     return `Error writing file: ${(error as any)?.message}`;
@@ -83,6 +86,7 @@ async function readFiles({
   paths,
 }: ReadFilesParams): Promise<Record<string, string> | string> {
   try {
+    console.log(chalk.green(`Reading files ${paths.join(", ")}`));
     const results: Record<string, string> = {};
     for (const path of paths) {
       results[path] = await fs.readFile(path, "utf8");

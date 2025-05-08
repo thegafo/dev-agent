@@ -65,18 +65,11 @@ export async function main(options: Options = {}) {
           isLoading = true;
         }
       })
+      // Logging is now handled in tools.ts, so this is no longer needed
       .on("tool_calls.function.arguments.done", (data) => {
         if (isLoading) {
           spinner.stop();
           isLoading = false;
-          const args = JSON.parse(data.arguments);
-          if (data.name === "readFiles") {
-            console.log(chalk.green(`Reading files ${args.paths.join(", ")}`));
-          } else if (data.name === "writeFile") {
-            console.log(chalk.green(`Writing file ${args.path}`));
-          } else if (data.name === "executeCommand") {
-            console.log(chalk.green(`Executing command ${args.command}`));
-          }
         }
       })
       .on("content", (diff) => {
